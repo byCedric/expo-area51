@@ -53,12 +53,12 @@ jobs:
         
       - name: 📋 Setting identifiers
         run: |
-          echo "$(jq '.expo.android.package = ${{ env.identifier }}' app.json)" > app.json
-          echo "$(jq '.expo.ios.bundleIdentifier = ${{ env.identifier }}' app.json)" > app.json
+          echo "$(jq '.expo.android.package = \"${{ env.identifier }}\"' app.json)" > app.json
+          echo "$(jq '.expo.ios.bundleIdentifier = \"${{ env.identifier }}\"' app.json)" > app.json
       
       - name: ⚙️ Preparing EAS config
         working-directory: ${{ env.project }}
-        run: eas build:configure
+        run: eas build:configure --non-interactive
       
       - name: ⚙️ Preparing EAS profile
         working-directory: ${{ env.project }}
