@@ -59,7 +59,7 @@ jobs:
       
       - name: ⚙️ Preparing EAS config
         working-directory: ${{ env.project }}
-        run: eas build:configure --non-interactive
+        run: eas build:configure
       
       - name: ⚙️ Preparing EAS profile
         working-directory: ${{ env.project }}
