@@ -52,6 +52,7 @@ jobs:
         run: expo init ./${{ env.project }} -t ${{ github.event.inputs.template }}
         
       - name: 📋 Setting identifiers
+        working-directory: ${{ env.project }}
         run: |
           echo "$(jq '.expo.android.package = "${{ env.identifier }}"' app.json)" > app.json
           echo "$(jq '.expo.ios.bundleIdentifier = "${{ env.identifier }}"' app.json)" > app.json
