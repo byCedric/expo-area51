@@ -30,6 +30,7 @@ concurrency:
   
 env:
   project: area51
+  identifier: com.bycedric.area51
 
 jobs:
   build:
@@ -51,6 +52,11 @@ jobs:
       - name: 🚀 Create project
         run: expo init ./${{ env.project }} -t ${{ github.event.inputs.template }}
         
+      - name: 📋 Setting identifiers
+        run: |
+          echo "$(jq '.expo.android.package = "${{ env.identifier }}"' app.json)" > app.json
+          echo "$(jq '.expo.ios.bundleIdentifier = "${{ env.identifier }}"' app.json)" > app.json
+        
       - name: 📋 Setting EAS config
         if: ${{ github.event.inputs.eas-config }}
         working-directory: ${{ env.project }}
@@ -64,3 +70,9 @@ jobs:
       - name: 📱 EAS build
         working-directory: ${{ env.project }}
         run: ${{ github.event.inputs.eas-build }} --non-interactive
+        
+      - name: 🗂 Upload result
+        uses: actions/upload-artifact@v2
+        with:
+          name: project
+          path: ${{ env.project }}
