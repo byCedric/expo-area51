@@ -14,9 +14,9 @@ on:
           - ubuntu-latest
           - macos-latest
           - windows-latest
-      eas-config:
-        description: EAS configuration to use
-        required: false
+      eas-profile:
+        description: EAS build profile configuration to use
+        required: true
       eas-build: 
         description: EAS build command to use
         default: eas build
@@ -40,7 +40,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
-          cache: yarn
       
       - name: 🏗 Setup Expo and EAS
         uses: expo/expo-github-action@v7
@@ -54,13 +53,18 @@ jobs:
         
       - name: 📋 Setting identifiers
         run: |
-          echo "$(jq '.expo.android.package = "${{ env.identifier }}"' app.json)" > app.json
-          echo "$(jq '.expo.ios.bundleIdentifier = "${{ env.identifier }}"' app.json)" > app.json
-        
-      - name: 📋 Setting EAS config
-        if: ${{ github.event.inputs.eas-config }}
+          echo "$(jq '.expo.android.package = ${{ env.identifier }}' app.json)" > app.json
+          echo "$(jq '.expo.ios.bundleIdentifier = ${{ env.identifier }}' app.json)" > app.json
+      
+      - name: ⚙️ Preparing EAS config
         working-directory: ${{ env.project }}
-        run: echo '${{ github.events.input.eas-config }}' > eas.json
+        run: eas build:configure
+      
+      - name: ⚙️ Preparing EAS profile
+        working-directory: ${{ env.project }}
+        run: |
+          echo '${{ github.event.inputs.eas-profile }}' > eas-profile.json
+          echo "$(jq -s '.[0].build * .[1]' eas.json eas-profile.json)" > eas.json
         
       - name: ⚙️ Executing precommands
         if: ${{ github.event.inputs.precommands }}
