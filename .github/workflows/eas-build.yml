@@ -64,8 +64,8 @@ jobs:
       - name: ⚙️ Preparing EAS profile
         working-directory: ${{ env.project }}
         run: |
-          echo '${{ github.event.inputs.eas-profile }}' > eas-profile.json
-          echo "$(jq -s '.[0].build * .[1]' eas.json eas-profile.json)" > eas.json
+          echo '{"build": ${{ github.event.inputs.eas-profile }} }' > eas-profile.json
+          echo "$(jq -s '.[0] * .[1]' eas.json eas-profile.json)" > eas.json
         
       - name: ⚙️ Executing precommands
         if: ${{ github.event.inputs.precommands }}
