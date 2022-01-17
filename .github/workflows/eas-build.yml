@@ -76,8 +76,11 @@ jobs:
         working-directory: ${{ env.project }}
         run: ${{ github.event.inputs.eas-build }} --non-interactive
         
+      - name: 🗂 Zipping result
+        run: zip -r project.zip ${{ env.project }}
+        
       - name: 🗂 Upload result
         uses: actions/upload-artifact@v2
         with:
           name: project
-          path: ${{ env.project }}
+          path: project.zip
