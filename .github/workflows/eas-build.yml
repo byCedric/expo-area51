@@ -1,0 +1,66 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      template:
+        description: Expo template to create from
+        default: blank
+      os:
+        description: Operating system to use
+        type: choice
+        default: ubuntu-latest
+        options:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+      eas-config:
+        description: EAS configuration to use
+        required: false
+      eas-build: 
+        description: EAS build command to use
+        default: eas build
+      precommands:
+        description: Expo commands to apply before building
+        required: false
+
+concurrency:
+  group: eas-build
+  cancel-in-progress: true
+  
+env:
+  project: area51
+
+jobs:
+  build:
+    runs-on: ${{ github.event.inputs.os }}
+    steps:
+      - name: 🏗 Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: yarn
+      
+      - name: 🏗 Setup Expo and EAS
+        uses: expo/expo-github-action@v7
+        with:
+          token: ${{ secrets.EXPO_TOKEN }}
+          eas-version: latest
+          expo-version: latest
+          
+      - name: 🚀 Create project
+        run: expo init ./${{ env.project }} -t ${{ github.event.inputs.template }}
+        
+      - name: 📋 Setting EAS config
+        if: ${{ github.event.inputs.eas-config }}
+        working-directory: ${{ env.project }}
+        run: echo '${{ github.events.input.eas-config }}' > eas.json
+        
+      - name: ⚙️ Executing precommands
+        if: ${{ github.event.inputs.precommands }}
+        working-directory: ${{ env.project }}
+        run: ${{ github.event.inputs.precommands }}
+        
+      - name: 📱 EAS build
+        working-directory: ${{ env.project }}
+        run: ${{ github.event.inputs.eas-build }} --non-interactive
